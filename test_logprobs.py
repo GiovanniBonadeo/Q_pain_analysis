@@ -10,7 +10,7 @@ headers = {
 }
 
 payload = {
-    "model": "gemma4:31b",
+    "model": "qwen3.5:27b",
     "messages": [
         {
             "role": "user",
