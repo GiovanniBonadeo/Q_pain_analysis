@@ -2,7 +2,7 @@ import requests
 import json
 
 URL = "http://10.70.13.33:11434/v1/chat/completions"
-API_KEY = "sk-RZSBTkuZYOeXULKBTKupkA"
+API_KEY = "RZSBTkuZYOeXULKBTKupkA"
 
 headers = {
     "Content-Type": "application/json",
