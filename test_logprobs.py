@@ -2,7 +2,7 @@ import requests
 import json
 
 URL = "http://10.70.13.33:11434/v1/chat/completions"
-API_KEY = "sk-RZSBTkuZYOeXULKBTKupkA"
+API_KEY = "censored"
 
 headers = {
     "Content-Type": "application/json",
@@ -10,7 +10,7 @@ headers = {
 }
 
 payload = {
-    "model": "deepseek-32k",
+    "model": "qwen3.5:27b",
     "messages": [
         {
             "role": "user",
