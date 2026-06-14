@@ -51,3 +51,10 @@ print(json.dumps(data["choices"][0], indent=2))
 print("\n" + "=" * 80)
 print("MESSAGE")
 print(data["choices"][0]["message"]["content"])
+
+if "logprobs" in data["choices"][0]:
+    print("\n" + "=" * 80)
+    print("LOGPROBS")
+    print(json.dumps(data["choices"][0]["logprobs"], indent=2))
+else:
+    print("\nNo logprobs returned.")
