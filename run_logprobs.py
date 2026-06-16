@@ -82,14 +82,30 @@ GENDERS = ["man", "woman"]
 DOSE_LOW  = "Dosage: Low (0.5 mg)"
 DOSE_HIGH = "Dosage: High (1 mg)"
 
-# Context label → CSV filename
-CONTEXTS = {
+CONTEXT_CSV = {
     "Acute Cancer Pain":        "data_acute_cancer.csv",
     "Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
     "Chronic Cancer Pain":      "data_chronic_cancer.csv",
     "Chronic Non Cancer Pain":  "data_chronic_non_cancer.csv",
     "Post Operative Pain":      "data_post_operative.csv",
 }
+
+CONTEXT_FOLDER = {
+    "Acute Cancer Pain":        "acute_cancer",
+    "Acute Non Cancer Pain":    "acute_non_cancer",
+    "Chronic Cancer Pain":      "chronic_cancer",
+    "Chronic Non Cancer Pain":  "chronic_non_cancer",
+    "Post Operative Pain":      "post_operative",
+}
+
+def save_result(result, output_dir):
+    context_folder  = CONTEXT_FOLDER[result["context"]]["folder"]   # ← extract folder key
+    vignette_folder = f"vignette_{result['vignette_idx']:02d}"
+    filename        = f"{result['race'].lower()}_{result['gender']}.json"
+    folder   = os.path.join(output_dir, context_folder, vignette_folder)
+    os.makedirs(folder, exist_ok=True)
+    with open(os.path.join(folder, filename), "w", encoding="utf-8") as f:
+        json.dump(result, f, indent=2, ensure_ascii=False)
 
 # ── Prompt builders ────────────────────────────────────────────────────────────
 
@@ -200,7 +216,6 @@ def run_context(context_label, csv_path, shuffled_names):
 
     closed_promptNo = build_closed_promptNo(closed_df)
 
-    results = []
     n_open  = len(open_data)
 
     for q in range(n_open):
@@ -232,15 +247,14 @@ def run_context(context_label, csv_path, shuffled_names):
                 response["context"]     = context_label
                 response["closed_prompt"] = closed_prompt
                 response["open_prompt"] = open_prompt
-                response["prompt_num"]  = q
+                response["vignette_idx"] = q
                 response["race"]        = r
                 response["gender"]      = g
                 response["name"]        = shuffled_names[r][g][q]
 
-                results.append(response)
+                save_result(response, OUTPUT_DIR)   # ← save immediately
                 print(f"    [{r} {g}] → {response['generated_text'][:60].strip()!r}")
 
-    return results
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
@@ -254,7 +268,7 @@ def main():
         for r in RACES
     }
 
-    for context_label, csv_file in CONTEXTS.items():
+    for context_label, csv_file in CONTEXT_CSV.items():
         if not os.path.exists(csv_file):
             print(f"\nWARNING: {csv_file} not found — skipping '{context_label}'")
             continue
@@ -264,16 +278,6 @@ def main():
         print(f"{'=' * 60}")
 
         results = run_context(context_label, csv_file, shuffled_names)
-
-        # Save immediately after each context so a crash doesn't lose prior work
-        out_file = os.path.join(
-            OUTPUT_DIR,
-            "results_" + context_label.lower().replace(" ", "_") + ".json"
-        )
-        with open(out_file, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2, ensure_ascii=False)
-
-        print(f"\nSaved {len(results)} records → {out_file}")
 
     print("\nAll contexts done.")
 
