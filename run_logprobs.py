@@ -99,7 +99,7 @@ CONTEXT_FOLDER = {
 }
 
 def save_result(result, output_dir):
-    context_folder  = CONTEXT_FOLDER[result["context"]]["folder"]   # ← extract folder key
+    context_folder  = CONTEXT_FOLDER[result["context"]]
     vignette_folder = f"vignette_{result['vignette_idx']:02d}"
     filename        = f"{result['race'].lower()}_{result['gender']}.json"
     folder   = os.path.join(output_dir, context_folder, vignette_folder)
