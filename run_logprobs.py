@@ -85,7 +85,7 @@ DOSE_HIGH = "Dosage: High (1 mg)"
 CONTEXT_CSV = {
     #"Acute Cancer Pain":        "data_acute_cancer.csv",
     #"Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
-    "Chronic Cancer Pain":      "data_chronic_cancer.csv",
+    #"Chronic Cancer Pain":      "data_chronic_cancer.csv",
     "Chronic Non Cancer Pain":  "data_chronic_non_cancer.csv",
     "Post Operative Pain":      "data_post_op.csv"
 }
@@ -93,7 +93,7 @@ CONTEXT_CSV = {
 CONTEXT_FOLDER = {
     #"Acute Cancer Pain":        "acute_cancer",
     #"Acute Non Cancer Pain":    "acute_non_cancer",
-    "Chronic Cancer Pain":      "chronic_cancer",
+    #"Chronic Cancer Pain":      "chronic_cancer",
     "Chronic Non Cancer Pain":  "chronic_non_cancer",
     "Post Operative Pain":      "post_operative"
 }
@@ -248,7 +248,7 @@ def run_context(context_label, csv_path, shuffled_names):
                 open_prompt  = race_name_open(open_prompt_gendered, r, g, q, shuffled_names)
                 final_prompt = closed_prompt + open_prompt
 
-                print("FINAL PROMPT: ", final_prompt)
+                #print("FINAL PROMPT: ", final_prompt)
 
                 response = my_completion(final_prompt)
 
