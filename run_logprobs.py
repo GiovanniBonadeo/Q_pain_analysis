@@ -83,19 +83,19 @@ DOSE_LOW  = "Dosage: Low (0.5 mg)"
 DOSE_HIGH = "Dosage: High (1 mg)"
 
 CONTEXT_CSV = {
-    "Acute Cancer Pain":        "data_acute_cancer.csv",
-    "Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
+    #"Acute Cancer Pain":        "data_acute_cancer.csv",
+    #"Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
     "Chronic Cancer Pain":      "data_chronic_cancer.csv",
     "Chronic Non Cancer Pain":  "data_chronic_non_cancer.csv",
-    "Post Operative Pain":      "data_post_operative.csv",
+    "Post Operative Pain":      "data_post_op.csv"
 }
 
 CONTEXT_FOLDER = {
-    "Acute Cancer Pain":        "acute_cancer",
-    "Acute Non Cancer Pain":    "acute_non_cancer",
+    #"Acute Cancer Pain":        "acute_cancer",
+    #"Acute Non Cancer Pain":    "acute_non_cancer",
     "Chronic Cancer Pain":      "chronic_cancer",
     "Chronic Non Cancer Pain":  "chronic_non_cancer",
-    "Post Operative Pain":      "post_operative",
+    "Post Operative Pain":      "post_operative"
 }
 
 def save_result(result, output_dir):
@@ -216,12 +216,17 @@ def run_context(context_label, csv_path, shuffled_names):
 
     closed_promptNo = build_closed_promptNo(closed_df)
 
+    #print(closed_promptNo)
+    #print(open_data)
+
     n_open  = len(open_data)
 
     for q in range(n_open):
         print(f"  --- Vignette {q + 1}/{n_open} ---")
 
         open_prompt_standard = create_open_standard(open_data, q)
+
+        #print("open prompt:", open_prompt_standard)
 
         # Sample 2 different positive vignettes for the closed examples
         available          = [i for i in range(n_open) if i != q]
@@ -232,7 +237,9 @@ def run_context(context_label, csv_path, shuffled_names):
         # Standardize closed prompts (remove demographics, rename patients)
         closed_prompt_high = standardize_closed(closed_prompt_high, "Patient A")
         closed_prompt_low  = standardize_closed(closed_prompt_low,  "Patient C")
-        closed_prompt      = closed_prompt_high + closed_prompt_low + closed_promptNo
+        closed_prompt      = closed_prompt_low + closed_promptNo #+ closed_prompt_high 
+
+        #print("closed prompt: ", closed_prompt)
 
         for g in GENDERS:
             open_prompt_gendered = genderize_open(open_prompt_standard, g)
@@ -240,6 +247,8 @@ def run_context(context_label, csv_path, shuffled_names):
             for r in RACES:
                 open_prompt  = race_name_open(open_prompt_gendered, r, g, q, shuffled_names)
                 final_prompt = closed_prompt + open_prompt
+
+                print("FINAL PROMPT: ", final_prompt)
 
                 response = my_completion(final_prompt)
 
@@ -258,7 +267,80 @@ def run_context(context_label, csv_path, shuffled_names):
 
 # ── Main ───────────────────────────────────────────────────────────────────────
 
+def sanity_check_csvs():
+    """Validate all CSVs before running any API calls."""
+    print("Running sanity checks on all CSV files...\n")
+    all_ok = True
+
+    for context_label, csv_file in CONTEXT_CSV.items():
+        print(f"--- {context_label} ({csv_file}) ---")
+
+        if not os.path.exists(csv_file):
+            print(f"  ❌ File not found")
+            all_ok = False
+            continue
+
+        vignettes = pd.read_csv(csv_file)
+
+        # Check required columns exist
+        required_cols = {"Vignette", "Question", "Answer", "Dosage", "Explanation"}
+        missing_cols = required_cols - set(vignettes.columns)
+        if missing_cols:
+            print(f"  ❌ Missing columns: {missing_cols}")
+            all_ok = False
+            continue
+
+        # Check Yes/No filtering works
+        open_data = vignettes[vignettes.Answer.str.strip().str.lower().str.startswith("yes")]
+        no_data   = vignettes[vignettes.Answer.str.strip().str.lower().str.startswith("no")]
+
+        print(f"  Total rows: {len(vignettes)}")
+        print(f"  Yes rows:   {len(open_data)}")
+        print(f"  No rows:    {len(no_data)}")
+
+        if len(open_data) == 0:
+            print(f"  ❌ No 'Yes' vignettes found — check Answer column values")
+            print(f"     Unique Answer values: {vignettes.Answer.unique().tolist()}")
+            all_ok = False
+
+        if len(no_data) == 0:
+            print(f"  ❌ No 'No' vignette found — check Answer column values")
+            all_ok = False
+
+        # Check High/Low dosage rows exist among Yes vignettes
+        high_rows = open_data[open_data.Dosage.str.strip().str.lower().str.startswith("high", na=False)]
+        low_rows  = open_data[open_data.Dosage.str.strip().str.lower().str.startswith("low",  na=False)]
+        print(f"  High dosage rows: {len(high_rows)}")
+        print(f"  Low dosage rows:  {len(low_rows)}")
+
+        if len(high_rows) == 0:
+            print(f" No 'High' dosage vignette found")
+        if len(low_rows) == 0:
+            print(f"  ❌ No 'Low' dosage vignette found")
+            all_ok = False
+
+        # Check placeholders exist in Yes vignettes (needed for demographic injection)
+        sample_vignette = open_data.Vignette.iloc[0] if len(open_data) > 0 else ""
+        for placeholder in ["[race]", "[gender]", "Patient D"]:
+            if placeholder not in sample_vignette:
+                print(f"  ⚠️  Warning: '{placeholder}' not found in first Yes vignette")
+
+        print()
+
+    if not all_ok:
+        print("=" * 60)
+        print("SANITY CHECK FAILED — fix the issues above before running.")
+        print("=" * 60)
+        raise SystemExit(1)
+    else:
+        print("=" * 60)
+        print("All sanity checks passed. Proceeding to run experiment.")
+        print("=" * 60)
+
 def main():
+
+    #sanity_check_csvs()
+
     random.seed(42)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
