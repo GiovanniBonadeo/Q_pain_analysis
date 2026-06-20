@@ -10,7 +10,7 @@ headers = {
 }
 
 payload = {
-    "model": "llama4-32k",
+    "model": "qwen3.5:27b",
     "messages": [
         {
             "role": "user",
