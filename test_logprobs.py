@@ -10,7 +10,7 @@ headers = {
 }
 
 payload = {
-    "model": "qwen3.5:27b",
+    "model": "deepseek-32k",
     "messages": [
         {
             "role": "user",
