@@ -26,7 +26,7 @@ import requests
 
 URL     = "http://10.70.13.33:11434/v1/chat/completions"
 API_KEY = "sk-RZSBTkuZYOeXULKBTKupkA"
-MODEL   = "deepseek-32k"
+MODEL   = "llama4-32k"
 
 HEADERS = {
     "Content-Type": "application/json",

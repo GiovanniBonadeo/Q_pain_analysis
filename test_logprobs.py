@@ -10,7 +10,7 @@ headers = {
 }
 
 payload = {
-    "model": "deepseek-32k",
+    "model": "llama4-32k",
     "messages": [
         {
             "role": "user",
