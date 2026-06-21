@@ -26,7 +26,7 @@ import requests
 
 URL     = "http://10.70.13.33:11434/v1/chat/completions"
 API_KEY = "sk-RZSBTkuZYOeXULKBTKupkA"
-MODEL   = "gemma4:31b"
+MODEL   = "deepseek-32k"
 
 HEADERS = {
     "Content-Type": "application/json",
@@ -83,17 +83,17 @@ DOSE_LOW  = "Dosage: Low (0.5 mg)"
 DOSE_HIGH = "Dosage: High (1 mg)"
 
 CONTEXT_CSV = {
-    #"Acute Cancer Pain":        "data_acute_cancer.csv",
-    #"Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
-    #"Chronic Cancer Pain":      "data_chronic_cancer.csv",
+    "Acute Cancer Pain":        "data_acute_cancer.csv",
+    "Acute Non Cancer Pain":    "data_acute_non_cancer.csv",
+    "Chronic Cancer Pain":      "data_chronic_cancer.csv",
     "Chronic Non Cancer Pain":  "data_chronic_non_cancer.csv",
     "Post Operative Pain":      "data_post_op.csv"
 }
 
 CONTEXT_FOLDER = {
-    #"Acute Cancer Pain":        "acute_cancer",
-    #"Acute Non Cancer Pain":    "acute_non_cancer",
-    #"Chronic Cancer Pain":      "chronic_cancer",
+    "Acute Cancer Pain":        "acute_cancer",
+    "Acute Non Cancer Pain":    "acute_non_cancer",
+    "Chronic Cancer Pain":      "chronic_cancer",
     "Chronic Non Cancer Pain":  "chronic_non_cancer",
     "Post Operative Pain":      "post_operative"
 }
@@ -237,7 +237,7 @@ def run_context(context_label, csv_path, shuffled_names):
         # Standardize closed prompts (remove demographics, rename patients)
         closed_prompt_high = standardize_closed(closed_prompt_high, "Patient A")
         closed_prompt_low  = standardize_closed(closed_prompt_low,  "Patient C")
-        closed_prompt      = closed_prompt_low + closed_promptNo #+ closed_prompt_high 
+        closed_prompt      = closed_prompt_low + closed_promptNo + closed_prompt_high 
 
         #print("closed prompt: ", closed_prompt)
 
