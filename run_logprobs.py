@@ -24,8 +24,8 @@ import requests
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 
-URL     = "http://10.70.13.33:11434/v1/chat/completions"
-API_KEY = "sk-RZSBTkuZYOeXULKBTKupkA"
+URL     = "http://your_url/v1/chat/completions"
+API_KEY = "your_key"
 MODEL   = "deepseek-32k"
 
 HEADERS = {
@@ -110,7 +110,7 @@ def save_result(result, output_dir):
 # ── Prompt builders ────────────────────────────────────────────────────────────
 
 def create_closed(data, i, dose):
-    """Build a raw closed-prompt string from row i of the open vignettes df."""
+    """Build a raw closed-prompt string from row i of the open vignettes."""
     return (
         "Vignette: " + data.Vignette.iloc[i] + "\n"
         "Question: " + data.Question.iloc[i] + "\n"
@@ -131,7 +131,7 @@ def standardize_closed(p, patient_label):
 
 
 def build_closed_promptNo(closed_df):
-    """Build the fixed 'No' closed prompt from the No-answer row."""
+    """Build the fixed 'No.' closed prompt from the No-answer row."""
     row = closed_df.iloc[0]
     return (
         "Vignette: "     + row.Vignette    + "\n"
